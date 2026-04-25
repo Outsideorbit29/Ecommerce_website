@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
+import api from "@/lib/api";
 import { useAuth } from "./AuthContext";
 
 const CartContext = createContext();
@@ -22,9 +22,7 @@ export const CartProvider = ({ children }) => {
   const fetchCart = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("http://localhost:5000/api/cart", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      const { data } = await api.get("/cart");
       setCartItems(data.items || []);
     } catch (error) {
       console.error("Failed to fetch cart", error);
@@ -35,16 +33,11 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (productId, quantity = 1) => {
     if (!user) {
-      // Local cart storage logic omitted for simplicity; fallback to login required
       alert("Please login to add to cart");
       return;
     }
     try {
-      const { data } = await axios.post(
-        "http://localhost:5000/api/cart",
-        { productId, quantity },
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
+      const { data } = await api.post("/cart", { productId, quantity });
       setCartItems(data.items || []);
     } catch (error) {
       console.error("Failed to add to cart", error);
@@ -54,10 +47,7 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (productId) => {
     if (!user) return;
     try {
-      const { data } = await axios.delete(
-        `http://localhost:5000/api/cart/${productId}`,
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
+      const { data } = await api.delete(`/cart/${productId}`);
       setCartItems(data.items || []);
     } catch (error) {
       console.error("Failed to remove from cart", error);
@@ -70,9 +60,7 @@ export const CartProvider = ({ children }) => {
       return;
     }
     try {
-      await axios.delete("http://localhost:5000/api/cart", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      await api.delete("/cart");
       setCartItems([]);
     } catch (error) {
       console.error("Failed to clear cart", error);

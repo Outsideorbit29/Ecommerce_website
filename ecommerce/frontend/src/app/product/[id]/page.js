@@ -5,7 +5,7 @@ import { useCart } from "@/context/CartContext";
 import ProductCard from "@/components/ui/ProductCard";
 import { motion } from "framer-motion";
 import { ShoppingCart, Star, StarHalf, Heart, Share2, Sparkles } from "lucide-react";
-import axios from "axios";
+import api from "@/lib/api";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -24,7 +24,7 @@ export default function ProductDetail() {
     const fetchDetail = async () => {
       try {
         // Attempt fetch from backend
-        const { data } = await axios.get(`http://localhost:5000/api/products/${id}`);
+        const { data } = await api.get(`/products/${id}`);
         setProduct(data);
       } catch(e) {
         setProduct(dummyData.find(p => p._id === id) || dummyData[0]);
@@ -35,7 +35,7 @@ export default function ProductDetail() {
 
     const fetchRecommendations = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:5000/api/products/ai/recommendations`);
+        const { data } = await api.get(`/products/ai/recommendations`);
         setRecommendations(data.recommendations || dummyData);
       } catch(e) {
         setRecommendations(dummyData);

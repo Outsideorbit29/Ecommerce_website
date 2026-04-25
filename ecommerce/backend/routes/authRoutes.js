@@ -1,13 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, authUser, getUserProfile, verifyEmail } = require('../controllers/authController');
+const { registerUser, authUser, getUserProfile } = require('../controllers/authController');
 
 // We will create the protect middleware in config/middleware
 const { protect } = require('../middleware/authMiddleware');
 
 router.post('/signup', registerUser);
 router.post('/login', authUser);
-router.get('/verify-email/:token', verifyEmail);
 router.get('/profile', protect, getUserProfile);
 
 

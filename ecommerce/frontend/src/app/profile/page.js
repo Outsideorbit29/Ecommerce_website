@@ -1,7 +1,7 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/lib/api";
 import { User, Mail, Phone, MapPin, Package, Calendar, ChevronRight, ShoppingCart, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -16,18 +16,12 @@ export default function ProfilePage() {
     if (user) {
       const fetchData = async () => {
         try {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${user.token}`,
-            },
-          };
-          
           // Fetch Profile Details
-          const { data: profile } = await axios.get("http://localhost:5000/api/auth/profile", config);
+          const { data: profile } = await api.get("/auth/profile");
           setProfileData(profile);
 
           // Fetch Order History
-          const { data: myOrders } = await axios.get("http://localhost:5000/api/orders/myorders", config);
+          const { data: myOrders } = await api.get("/orders/myorders");
           setOrders(myOrders);
         } catch (error) {
           console.error("Error fetching profile data", error);

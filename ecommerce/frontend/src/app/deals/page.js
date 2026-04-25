@@ -1,7 +1,7 @@
 "use client";
 import ProductCard from "@/components/ui/ProductCard";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/lib/api";
 import { Zap, Timer } from "lucide-react";
 
 export default function DealsPage() {
@@ -10,7 +10,7 @@ export default function DealsPage() {
   useEffect(() => {
     const fetchDeals = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5000/api/products");
+        const { data } = await api.get("/products");
         // Filter products with a price lower than 200 or custom logic
         setDealProducts(data.sort(() => 0.5 - Math.random()).slice(0, 4));
       } catch (error) {

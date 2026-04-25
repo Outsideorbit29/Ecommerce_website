@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { CheckCircle2, Lock, Loader2 } from "lucide-react";
-import axios from "axios";
+import api from "@/lib/api";
 
 export default function Checkout() {
   const { cartItems, clearCart } = useCart();
@@ -61,9 +61,7 @@ export default function Checkout() {
         totalPrice: total,
       };
 
-      await axios.post("http://localhost:5000/api/orders", orderData, {
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
+      await api.post("/orders", orderData);
 
       // Clear cart on success
       await clearCart();

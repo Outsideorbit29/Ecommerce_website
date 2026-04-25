@@ -1,9 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -11,21 +11,16 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("User");
   const [error, setError] = useState("");
-  const { signup, user } = useAuth();
+  const { signup } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (user) {
-      router.push("/");
-    }
-  }, [user, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    
     const res = await signup(name, email, password, role);
-    if (!res.success) {
+    if (res.success) {
+      router.push("/");
+    } else {
       setError(res.message);
     }
   };
@@ -63,41 +58,47 @@ export default function Signup() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
             <input 
-              type="text" required placeholder="Anish"
-              className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none transition-all"
-              value={name} onChange={(e) => setName(e.target.value)}
+              type="text" 
+              required
+              className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input 
-              type="email" required placeholder="name@example.com"
-              className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none transition-all"
-              value={email} onChange={(e) => setEmail(e.target.value)}
+              type="email" 
+              required
+              className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input 
-              type="password" required placeholder="••••••••"
-              className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black outline-none transition-all"
-              value={password} onChange={(e) => setPassword(e.target.value)}
+              type="password" 
+              required
+              minLength={6}
+              className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-
           <button 
-            type="submit"
-            className="w-full bg-black text-white p-4 rounded-xl font-bold mt-4 shadow-lg shadow-black/10 hover:bg-slate-800 transition-colors"
+            type="submit" 
+            className="w-full bg-black text-white p-3 rounded-lg font-medium hover:bg-slate-800 transition-colors shadow-lg shadow-black/10"
           >
             Create Account
           </button>
         </form>
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Already have an account? <Link href="/login" className="text-black font-bold hover:underline">Sign In</Link>
+        <p className="mt-6 text-center text-gray-600 text-sm">
+          Already have an account? <Link href="/login" className="text-black font-semibold hover:underline">Log in</Link>
         </p>
       </motion.div>
     </div>

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "@/components/ui/ProductCard";
-import axios from "axios";
+import api from "@/lib/api";
 import { Search } from "lucide-react";
 
 export default function ProductsPage() {
@@ -18,11 +18,11 @@ export default function ProductsPage() {
   const fetchProducts = async (cat) => {
     try {
       setLoading(true);
-      let url = "http://localhost:5000/api/products";
+      let endpoint = "/products";
       if (cat && cat !== "All") {
-        url += `?category=${encodeURIComponent(cat)}`;
+        endpoint += `?category=${encodeURIComponent(cat)}`;
       }
-      const { data } = await axios.get(url);
+      const { data } = await api.get(endpoint);
       setProducts(data);
     } catch (error) {
       console.error(error);
@@ -39,9 +39,9 @@ export default function ProductsPage() {
     <div className="bg-white min-h-screen pt-20 pb-24">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="mb-12 flex flex-col md:flex-row justify-between items-end gap-6 text-center md:text-left">
+        <div className="mb-12 flex flex-col md:flex-row justify-between items-center md:items-end gap-6 text-center md:text-left">
           <div>
-            <h1 className="text-5xl font-black text-slate-900 tracking-tighter mb-4">Storefront</h1>
+            <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4">Storefront</h1>
             <p className="text-gray-500 text-lg">Curated collections listed by our premium partners.</p>
           </div>
           <div className="relative w-full md:w-96">
@@ -55,12 +55,12 @@ export default function ProductsPage() {
         </div>
 
         {/* Category Filters */}
-        <div className="flex flex-wrap gap-3 mb-12 justify-center md:justify-start">
+        <div className="flex flex-wrap gap-2 md:gap-3 mb-12 justify-center md:justify-start">
           {categories.map((cat) => (
             <button 
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${activeCategory === cat ? 'bg-black text-white border-black shadow-lg scale-105' : 'bg-white text-gray-500 border-gray-200 hover:border-black hover:text-black'}`}
+              className={`px-4 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition-all border ${activeCategory === cat ? 'bg-black text-white border-black shadow-lg scale-105' : 'bg-white text-gray-500 border-gray-200 hover:border-black hover:text-black'}`}
             >
               {cat}
             </button>

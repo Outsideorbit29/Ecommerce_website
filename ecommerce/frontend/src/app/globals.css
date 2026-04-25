@@ -13,8 +13,18 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --background: #000000;
-      --foreground: #ededed;
+      --background: #ffffff; /* Keeping light theme for ecommerce by default for premium look */
+      --foreground: #171717;
     }
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply text-slate-900;
   }
 }

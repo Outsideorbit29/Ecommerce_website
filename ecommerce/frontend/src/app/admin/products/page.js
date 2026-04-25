@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import axios from "axios";
+import api from "@/lib/api";
 import { Plus, Trash2, Edit2, Package, Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -21,7 +21,7 @@ export default function AdminProducts() {
 
   const fetchProducts = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/api/products");
+      const { data } = await api.get("/products");
       setProducts(data);
     } catch (error) {
       console.error(error);
@@ -37,10 +37,7 @@ export default function AdminProducts() {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      const config = { headers: { Authorization: `Bearer ${user.token}` } };
-      // Note: Backend currently has a 'createProduct' which creates a sample. 
-      // I should update it to take body data.
-      await axios.post("http://localhost:5000/api/products", formData, config);
+      await api.post("/products", formData);
       setShowModal(false);
       fetchProducts();
       setFormData({ name: "", price: "", description: "", category: "", stock: "", images: [] });
@@ -52,8 +49,7 @@ export default function AdminProducts() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure?")) {
       try {
-        const config = { headers: { Authorization: `Bearer ${user.token}` } };
-        await axios.delete(`http://localhost:5000/api/products/${id}`, config);
+        await api.delete(`/products/${id}`);
         fetchProducts();
       } catch (error) {
         alert("Failed to delete product");

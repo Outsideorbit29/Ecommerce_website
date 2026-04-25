@@ -27,13 +27,6 @@ const userSchema = mongoose.Schema(
     phoneNumber: {
       type: String,
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    verificationToken: {
-      type: String,
-    },
   },
   {
     timestamps: true, // Automagically creates createdAt and updatedAt
