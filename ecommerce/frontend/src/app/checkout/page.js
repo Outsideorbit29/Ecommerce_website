@@ -1,20 +1,79 @@
 "use client";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { CheckCircle2, Lock } from "lucide-react";
+import { CheckCircle2, Lock, Loader2 } from "lucide-react";
+import axios from "axios";
 
 export default function Checkout() {
-  const { cartItems } = useCart();
+  const { cartItems, clearCart } = useCart();
+  const { user } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Success
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Shipping state
+  const [shippingData, setShippingData] = useState({
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    state: "",
+    zip: "",
+    country: "USA"
+  });
 
   const total = cartItems.reduce((acc, item) => acc + (item.product?.price || 0) * item.quantity, 0);
 
   const handleNext = (e) => {
     e.preventDefault();
-    setStep(step + 1);
+    setStep(2);
+  };
+
+  const handlePayment = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      alert("Please login to complete your order");
+      router.push("/login");
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      
+      // Prepare order data for backend
+      const orderData = {
+        orderItems: cartItems.map(item => ({
+          product: item.product._id,
+          name: item.product.name,
+          qty: item.quantity,
+          price: item.product.price,
+        })),
+        shippingAddress: {
+          address: shippingData.address,
+          city: shippingData.city,
+          postalCode: shippingData.zip,
+          country: shippingData.country,
+        },
+        paymentMethod: "Credit Card",
+        totalPrice: total,
+      };
+
+      await axios.post("http://localhost:5000/api/orders", orderData, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+
+      // Clear cart on success
+      await clearCart();
+      setStep(3);
+    } catch (error) {
+      console.error("Order creation failed", error);
+      alert(error.response?.data?.message || "Something went wrong with your order.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (step === 3) {
@@ -68,29 +127,53 @@ export default function Checkout() {
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                      <input type="text" required className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" />
+                      <input 
+                        type="text" required 
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" 
+                        value={shippingData.firstName} onChange={(e) => setShippingData({...shippingData, firstName: e.target.value})}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                      <input type="text" required className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" />
+                      <input 
+                        type="text" required 
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" 
+                        value={shippingData.lastName} onChange={(e) => setShippingData({...shippingData, lastName: e.target.value})}
+                      />
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                    <input type="text" required className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" />
+                    <input 
+                      type="text" required 
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" 
+                      value={shippingData.address} onChange={(e) => setShippingData({...shippingData, address: e.target.value})}
+                    />
                   </div>
                   <div className="grid grid-cols-3 gap-6">
                     <div className="col-span-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                      <input type="text" required className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" />
+                      <input 
+                        type="text" required 
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" 
+                        value={shippingData.city} onChange={(e) => setShippingData({...shippingData, city: e.target.value})}
+                      />
                     </div>
                     <div className="col-span-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                      <input type="text" required className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" />
+                      <input 
+                        type="text" required 
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" 
+                        value={shippingData.state} onChange={(e) => setShippingData({...shippingData, state: e.target.value})}
+                      />
                     </div>
                     <div className="col-span-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">ZIP</label>
-                      <input type="text" required className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" />
+                      <input 
+                        type="text" required 
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" 
+                        value={shippingData.zip} onChange={(e) => setShippingData({...shippingData, zip: e.target.value})}
+                      />
                     </div>
                   </div>
                   <button type="submit" className="w-full bg-black text-white p-4 rounded-xl font-medium hover:bg-slate-800 transition-colors mt-8">
@@ -100,7 +183,7 @@ export default function Checkout() {
               )}
 
               {step === 2 && (
-                <form onSubmit={handleNext} className="space-y-6">
+                <form onSubmit={handlePayment} className="space-y-6">
                   <h2 className="text-2xl font-bold text-slate-900 mb-2">Payment Details</h2>
                   <p className="text-gray-500 mb-6 flex items-center gap-2"><Lock className="w-4 h-4"/> Secure encrypted transaction</p>
                   
@@ -132,8 +215,12 @@ export default function Checkout() {
                     <button type="button" onClick={() => setStep(1)} className="w-1/3 bg-gray-100 text-black p-4 rounded-xl font-medium hover:bg-gray-200 transition-colors">
                       Back
                     </button>
-                    <button type="submit" className="w-2/3 bg-black text-white p-4 rounded-xl font-medium hover:bg-slate-800 transition-colors">
-                      Pay ${total.toFixed(2)}
+                    <button 
+                      type="submit" 
+                      disabled={isProcessing}
+                      className="w-2/3 bg-black text-white p-4 rounded-xl font-medium hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+                    >
+                      {isProcessing ? <Loader2 className="w-5 h-5 animate-spin"/> : `Pay $${total.toFixed(2)}`}
                     </button>
                   </div>
                 </form>

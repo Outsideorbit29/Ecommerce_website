@@ -26,14 +26,16 @@ const sendEmail = async (options) => {
     await transporter.sendMail(mailOptions);
     console.log(`Email sent to ${options.email}`);
   } catch (error) {
-    console.error('Email sending failed, but here is the content:');
+    console.error('Email sending failed (this is common in dev without a verified domain):');
+    console.log('--- FALLBACK LOG ---');
     console.log('TO:', options.email);
     console.log('SUBJECT:', options.subject);
     console.log('MESSAGE:', options.message);
-    // Rethrow to let the controller handle it if needed, 
-    // or just absorb it for dev. 
-    // For now, I'll rethrow.
-    throw error;
+    console.log('--------------------');
+    // Do not rethrow in development to allow signup flow to continue
+    if (process.env.NODE_ENV === 'production') {
+      throw error;
+    }
   }
 };
 

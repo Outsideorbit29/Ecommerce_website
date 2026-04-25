@@ -64,8 +64,23 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  const clearCart = async () => {
+    if (!user) {
+      setCartItems([]);
+      return;
+    }
+    try {
+      await axios.delete("http://localhost:5000/api/cart", {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      setCartItems([]);
+    } catch (error) {
+      console.error("Failed to clear cart", error);
+    }
+  };
+
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, loading }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, loading }}>
       {children}
     </CartContext.Provider>
   );
